@@ -1,7 +1,7 @@
 {-
 
- Name: Yilu Yang
- Uni: yy3626
+ Name:
+ Uni:
 
  ------------------------------
 
@@ -19,7 +19,7 @@
  other libraries
 
  Do not modify the type signatures for any of the provided functions.
- 
+
  Above, include your name and UNI
 
  Please do not delete or modify any of the block comments below (i.e.,
@@ -60,12 +60,7 @@
 
 -}
 eleminc :: Ord a => a -> [a] -> Bool
-eleminc _ [] = False
-eleminc a (x:xs)
-  | a == x    = True
-  | a < x     = False
-  | a /= x    = eleminc a xs
-  | otherwise = True
+eleminc _ _ = False -- Change this
 
 {- 2) Write a function for testing the Goldbach conjecture, i.e., that
       every even integer greater than 2 can be written as a sum of two
@@ -85,12 +80,10 @@ eleminc a (x:xs)
       (103,2539)
       ghci> goldbach 65536
       (17,65519)
-         
+
 -}
 goldbach :: Integer -> (Integer, Integer)
-goldbach n = case [(a, n-a) | a <- primes, eleminc (n-a) primes] of
-               (x:_) -> x
-               []    -> (0, 0)
+goldbach n = (n,n) -- Change this
 
 -- An infinite list of primes; do not modify
 primes :: [Integer]
@@ -101,7 +94,7 @@ primes = f [2..] where f (p:xs) = p : f [ x | x <- xs, x `mod` p /= 0 ]
       contiguous run of equal values in a list.
 
       E.g.,
- 
+
       ghci> maxrun []
       0
       ghci> maxrun [1]
@@ -112,18 +105,13 @@ primes = f [2..] where f (p:xs) = p : f [ x | x <- xs, x `mod` p /= 0 ]
       3
 -}
 maxrun :: Eq a => [a] -> Int
-maxrun [] = 0
-maxrun (x:xs) = go x 1 1 xs
-  where go _ _ best [] = best
-        go prev_elem cur best (y:ys)
-          | y == prev_elem = go y (cur + 1) (max (cur+1) best) ys
-          | otherwise = go y 1 best ys
+maxrun _ = 0 -- Change this
 
 {- 4) Write the infinite list of Pell numbers in which the next number is
       twice the previous number plus the the number before that.
 
       Hint: declare the list recursively in terms of itself.  My solution is
-      a single line.      
+      a single line.
 
       Example:
 
@@ -131,7 +119,7 @@ maxrun (x:xs) = go x 1 1 xs
       [0,1,2,5,12,29,70,169,408,985]
 -}
 pell :: [Integer]
-pell = 0 : 1 : [ x + 2 * y | (x, y) <- zip pell (drop 1 pell)]
+pell = [0,1,2] -- Change this
 
 {- 5) Write a function revmap that applies a function to each element of
       the given list and returns the resulting list in reverse order,
@@ -149,11 +137,7 @@ pell = 0 : 1 : [ x + 2 * y | (x, y) <- zip pell (drop 1 pell)]
       [13,12,11]
 -}
 revmap :: (a -> b) -> [a] -> [b]
-revmap _ [] = []
-revmap f xs = acc [] xs
-  where
-    acc z []     = z
-    acc z (y:ys) = acc (f y : z) ys
+revmap _ _ = [] -- Change this
 
 {- 6) Write a function sequencef that takes a list of functions
       and returns the function that applies them left-to-right.
@@ -165,8 +149,7 @@ revmap f xs = acc [] xs
 
 -}
 sequencef :: [a -> a] -> a -> a
-sequencef [] x     = x
-sequencef (f:fs) x = sequencef fs (f x)
+sequencef _ = id -- Change this
 
 {- 7) Generate the rows of Pascal's triangle as an infinite list of lists.
 
@@ -177,9 +160,9 @@ sequencef (f:fs) x = sequencef fs (f x)
     Example:
     ghci> take 7 pascal
     [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1],[1,5,10,10,5,1],[1,6,15,20,15,6,1]]
-    
+
 -}
 pascal :: Num a => [[a]]
-pascal = [1] : [[a + b | (a, b) <- zip (xs ++ [0]) (0 : xs)] | xs <- pascal]
+pascal =  [] -- Change this
 
 {- 8) PLEASE DO NOT DELETE THIS LINE -}
