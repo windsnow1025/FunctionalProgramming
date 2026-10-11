@@ -94,7 +94,15 @@ data Int100 = IntP [Word8]
 
 
 toInt100 :: Integer -> Int100
-toInt100 _ = IntZ -- Change this
+toInt100 n
+  | n == 0    = IntZ
+  | n > 0     = IntP (digits n)
+  | otherwise = IntN (digits (-n))
+  where
+    digits :: Integer -> [Word8]
+    digits m
+      | m == 0    = []
+      | otherwise = fromInteger (m `mod` 100) : digits (m `div` 100)
 
 {- 2) Write an instance of Show (just the show function)
       for the Int100 type.  You may assume the Int100 object
@@ -111,10 +119,13 @@ toInt100 _ = IntZ -- Change this
 -}
 
 instance Show Int100 where
-  show IntZ = "IntZ"                -- Change this
-  show (IntP l) = "IntP " ++ show l -- Change this
-  show (IntN l) = "IntN " ++ show l -- Change this
-         
+  show IntZ = "0"
+  show (IntP l) = case l of
+    []   -> ""
+    x:xs -> show (IntP xs) ++ pad ++ show x
+      where pad = if (x < 10 && xs /= []) then "0" else ""
+  show (IntN l) = "-" ++ show (IntP l)
+
 {- 3) Write a function addDigits that adds two positive integers
       represented as lists in base-100 form, LSD first (e.g., as in an Int100).
       Assume every list element is in [0..99] and that the last element, if
@@ -135,7 +146,9 @@ instance Show Int100 where
       the Integer type in your solution.
 -}
 addDigits :: [Word8] -> [Word8] -> [Word8]
-addDigits _ _ = [] -- Change this
+addDigits xs [] = xs
+addDigits [] ys = ys
+addDigits (x:xs) (y:ys) = (x+y) `mod` 100 : if (x+y >= 100) then addDigits (addDigits xs ys) [1] else addDigits xs ys
 
 {- 4) Write a function subDigits that subtracts the second positive
       integer from the first.  Assume both numbers are in base-100 form,
@@ -160,7 +173,12 @@ addDigits _ _ = [] -- Change this
       the Integer type in your solution.
 -}
 subDigits :: [Word8] -> [Word8] -> [Word8]
-subDigits _ _ = [] -- Change this
+subDigits xs [] = xs
+subDigits [] _ = error "subDigits: first argument is smaller than second"
+subDigits (x:xs) (y:ys) = ((x-y+100) `mod` 100) `cons` (if (x < y) then subDigits (subDigits xs ys) [1] else subDigits xs ys)
+  where
+    cons 0 [] = []
+    cons c cs = c:cs
 
 {- 5) Write a function multDigit that multiplies a positive base-100 integer
       by an integer in the range [0..99].  Assume the last element of the
@@ -181,7 +199,10 @@ subDigits _ _ = [] -- Change this
       the Integer type in your solution.
 -}
 multDigit :: Word8 -> [Word8] -> [Word8]
-multDigit _ _ = [] -- Change this
+multDigit 0 _  = []
+multDigit _ [] = []
+multDigit x (y:ys) = fromIntegral (z `mod` 100) : (if (z >= 100) then addDigits (multDigit x ys) [fromIntegral (z `div` 100)] else multDigit x ys)
+  where z :: Word16 = fromIntegral x * fromIntegral y
 
 {- 6) Write a function multDigits that multiplies two positive base-100
       integers.  You may use multDigit and addDigits.
@@ -199,7 +220,12 @@ multDigit _ _ = [] -- Change this
       the Integer type in your solution.
 -}
 multDigits :: [Word8] -> [Word8] -> [Word8]
-multDigits _ _ = [] -- Change this
+multDigits [] _ = []
+multDigits _ [] = []
+multDigits (x:xs) ys = addDigits (multDigit x ys) (shift (multDigits xs ys))
+  where
+    shift [] = []
+    shift zs = 0: zs
 
 {- 7) Write a function compare100 that compares the magnitude of the
       two base-100 numbers given to it.
@@ -221,7 +247,11 @@ multDigits _ _ = [] -- Change this
       the Integer type in your solution.
 -}
 compare100 :: [Word8] -> [Word8] -> Ordering
-compare100 _ _ = EQ
+compare100 [] [] = EQ
+compare100 _ []  = GT
+compare100 [] _  = LT
+compare100 (x:xs) (y:ys) = if (z /= EQ) then z else compare x y
+  where z = compare100 xs ys
                  
 {- 8) Write an instance of the Num type class for Int100.
       Include implementations of fromInteger, +, *, signum, abs,
@@ -260,11 +290,33 @@ compare100 _ _ = EQ
 -}
 instance Num Int100 where
    fromInteger = toInt100
-   _ + _ = IntZ -- Change this
-   _ * _ = IntZ -- Change this
-   signum _ = IntZ -- Change this
-   negate _ = IntZ -- Change this
-   abs _ = IntZ -- Change this
+   x + y = case (x, y) of
+       (IntZ, _)        -> y
+       (_, IntZ)        -> x
+       (IntP a, IntP b) -> IntP (addDigits a b)
+       (IntN a, IntN b) -> IntN (addDigits a b)
+       (IntP a, IntN b) -> a `sub` b
+       (IntN a, IntP b) -> b `sub` a
+     where
+       sub a b = case compare100 a b of
+         GT -> IntP (subDigits a b)
+         LT -> IntN (subDigits b a)
+         EQ -> IntZ
+   x * y = case (x, y) of
+     (IntZ, _)        -> IntZ
+     (_, IntZ)        -> IntZ
+     (IntP a, IntP b) -> IntP (multDigits a b)
+     (IntN a, IntN b) -> IntP (multDigits a b)
+     (IntP a, IntN b) -> IntN (multDigits a b)
+     (IntN a, IntP b) -> IntN (multDigits a b)
+   signum IntZ     = IntZ
+   signum (IntP _) = IntP [1]
+   signum (IntN _) = IntN [1]
+   negate IntZ     = IntZ
+   negate (IntP l) = IntN l
+   negate (IntN l) = IntP l
+   abs (IntN l) = IntP l
+   abs x        = x
 
 {- 9) Write an instance of the Ord type class for Int100.
       in particular, write an implementation of the compare
@@ -284,7 +336,15 @@ instance Num Int100 where
       the Integer type in your solution.
 -}
 instance Ord Int100 where
-    _ `compare` _ = EQ -- Change this
+    compare IntZ     IntZ     = EQ
+    compare IntZ     (IntP _) = LT
+    compare IntZ     (IntN _) = GT
+    compare (IntP _) IntZ     = GT
+    compare (IntN _) IntZ     = LT
+    compare (IntP _) (IntN _) = GT
+    compare (IntN _) (IntP _) = LT
+    compare (IntP a) (IntP b) = compare100 a b
+    compare (IntN a) (IntN b) = compare100 b a
 
 {- 10) Implement the Functor type classes for the BHeap and BTree types.
 
@@ -296,9 +356,9 @@ data BHeap a = BHeap [BTree a] deriving (Eq, Show, Read)
 data BTree a = BNode Int a (BHeap a) deriving (Eq, Show, Read)
 
 instance Functor BHeap where
-  fmap _ _ = error "" -- Change this
+  fmap f (BHeap x) = BHeap (map (fmap f) x)
 
 instance Functor BTree where
-  fmap _ _ = error "" -- Change this
+  fmap f (BNode x y z) = BNode x (f y) (fmap f z)
 
 {- 11) PLEASE DO NOT DELETE THIS LINE -}
