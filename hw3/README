@@ -1,0 +1,22 @@
+Name: Yilu Yang
+Uni: yy3626
+
+-----------------------------
+
+COMS 4995 001 Parallel Function Programming
+
+Homework 3
+
+Due at 11:59 PM Sunday, October 25th, 2026
+
+Edit this file, wordFreq.hs, and wordLadder.hs, combine them in
+a .zip file (no subdirectories, please), and upload it to Courseworks.
+Do not rename the files.
+
+Above, include your name and UNI.
+
+Use lts-24.57 as the "resolver" for the Haskell Tool Stack.
+
+Your code should compile under GHC 9.10.3 with no warnings, e.g.,
+
+stack --resolver lts-24.57 ghc -- --make -Wall wordFreq
