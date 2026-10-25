@@ -76,6 +76,23 @@ $ ./wordFreq shakespeare.txt
 
 -}
 
+import System.Environment
+import Data.Char
+import qualified Data.Map as Map
+import Data.List
+
 main :: IO ()
 main = do
-  putStrLn "Write your code here"
+  [filename] <- getArgs
+  contents <- readFile filename
+  putStr $ unlines $ map formatLine $ take 40 $ sortByCount $ wordCounts $ toWords contents
+
+toWords = words . map toLower . filter (\c -> isAlpha c || isSpace c)
+
+wordCounts :: [String] -> Map.Map String Int
+wordCounts = Map.fromListWith (+) . map (\w -> (w, 1))
+
+sortByCount :: Map.Map String Int -> [(String, Int)]
+sortByCount = sortBy (\(_, a) (_, b) -> compare b a) . Map.toList
+
+formatLine (w, n) = show n ++ " " ++ w
