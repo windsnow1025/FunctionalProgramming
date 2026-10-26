@@ -69,6 +69,43 @@ untuned.
 
 -}
 
+import System.Environment
+import Data.Char
+import qualified Data.Set as Set
+import qualified Data.Map as Map
+
 main :: IO ()
 main = do
-  putStrLn "Write your code here"
+  [dictionary_filename, from_word, to_word] <- getArgs
+  contents <- readFile dictionary_filename
+  let dict = Set.fromList $ filter isValidWord $ lines contents
+  print $ ladder dict from_word to_word
+
+isValidWord :: String -> Bool
+isValidWord = all isLower
+
+neighbors dict w =
+  [ w' |
+    i <- [0 .. length w - 1],
+    let (before, old: after) = splitAt i w,
+    c <- ['a' .. 'z'],
+    c /= old,
+    let w' = before ++ [c] ++ after,
+    Set.member w' dict
+  ]
+
+ladder dict from_word to_word = bfs [[from_word]] (Set.singleton from_word) 1
+  where
+    bfs [] _ _ = Nothing
+    bfs paths visited n =
+      case [ w : rest | (w : rest) <- paths, w == to_word ] of
+        (p : _) -> Just (reverse p)
+        [] -> if n >= 20 then Nothing else bfs (Map.elems layer) visited' (n + 1)
+          where
+            layer =
+              Map.fromList [ (n, n : w : rest) |
+                (w : rest) <- paths,
+                n <- neighbors dict w,
+                not $ Set.member n visited
+              ]
+            visited' = Set.union visited (Set.fromList $ Map.keys layer)
