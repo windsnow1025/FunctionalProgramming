@@ -73,29 +73,47 @@ import System.Environment
 import Data.Char
 import qualified Data.Set as Set
 import qualified Data.Map as Map
+import Control.Monad
+import System.Exit
 
 main :: IO ()
 main = do
-  [dictionary_filename, from_word, to_word] <- getArgs
-  contents <- readFile dictionary_filename
-  let dict = Set.fromList $ filter isValidWord $ lines contents
-  print $ ladder dict from_word to_word
+  args <- getArgs
+  case args of
+    [dictionary_filename, from_word, to_word] -> do
+      contents <- readFile dictionary_filename
+      let dict = Set.fromList $ filter (\w -> length w == length from_word) $ filter isValidWord $ lines contents
+      when (length from_word /= length to_word) $
+        die $ show from_word ++ " and " ++ show to_word ++ " must be the same length"
+      when (not $ Set.member from_word dict) $
+        die $ show from_word ++ " not in dictionary"
+      when (not $ Set.member to_word dict) $
+        die $ show to_word ++ " not in dictionary"
+      case ladder dict from_word to_word of
+        Just path -> putStr $ unlines path
+        Nothing -> die "Unable to find a ladder in 20"
+    _ -> do
+      pn <- getProgName
+      die $ "Usage: " ++ pn ++ " <dictionary-filename> <from-word> <to-word>"
 
 isValidWord :: String -> Bool
 isValidWord = all isLower
 
+neighbors :: Set.Set [Char] -> [Char] -> [[Char]]
 neighbors dict w =
   [ w' |
     i <- [0 .. length w - 1],
-    let (before, old: after) = splitAt i w,
+    (before, old: after) <- [splitAt i w],
     c <- ['a' .. 'z'],
     c /= old,
     let w' = before ++ [c] ++ after,
     Set.member w' dict
   ]
 
+ladder :: Set.Set [Char] -> [Char] -> [Char] -> Maybe [[Char]]
 ladder dict from_word to_word = bfs [[from_word]] (Set.singleton from_word) 1
   where
+    bfs :: [[String]] -> Set.Set String -> Int -> Maybe [String]
     bfs [] _ _ = Nothing
     bfs paths visited n =
       case [ w : rest | (w : rest) <- paths, w == to_word ] of
@@ -103,9 +121,9 @@ ladder dict from_word to_word = bfs [[from_word]] (Set.singleton from_word) 1
         [] -> if n >= 20 then Nothing else bfs (Map.elems layer) visited' (n + 1)
           where
             layer =
-              Map.fromList [ (n, n : w : rest) |
+              Map.fromList [ (w', w' : w : rest) |
                 (w : rest) <- paths,
-                n <- neighbors dict w,
-                not $ Set.member n visited
+                w' <- neighbors dict w,
+                not $ Set.member w' visited
               ]
             visited' = Set.union visited (Set.fromList $ Map.keys layer)
