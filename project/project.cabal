@@ -59,6 +59,8 @@ test-suite project-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      BlackScholesSpec
+      Table1
       Paths_project
   autogen-modules:
       Paths_project
@@ -68,5 +70,6 @@ test-suite project-test
   build-depends:
       base >=4.7 && <5
     , erf
+    , hspec
     , project
   default-language: Haskell2010
