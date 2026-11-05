@@ -1,0 +1,6 @@
+cradle:
+  stack:
+    - path: "./hw4-1.hs"
+      component: "hw4:exe:hw4-1"
+    - path: "./hw4-2.hs"
+      component: "hw4:exe:hw4-2"
