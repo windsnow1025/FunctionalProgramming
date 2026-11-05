@@ -1,0 +1,17 @@
+name:                hw4
+version:             0.1.0.0
+
+dependencies:
+- base >= 4.7 && < 5
+- parallel
+
+ghc-options:
+- -O2
+- -threaded
+- -rtsopts
+
+executables:
+  hw4-1:
+    main:                hw4-1.hs
+  hw4-2:
+    main:                hw4-2.hs
