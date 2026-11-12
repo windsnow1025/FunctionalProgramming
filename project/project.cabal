@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      BinomialTree
       BlackScholes
       Lib
       Option
@@ -38,6 +39,7 @@ library
   build-depends:
       base >=4.7 && <5
     , erf
+    , vector
   default-language: Haskell2010
 
 executable project-exe
@@ -53,14 +55,17 @@ executable project-exe
       base >=4.7 && <5
     , erf
     , project
+    , vector
   default-language: Haskell2010
 
 test-suite project-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      BinomialTreeSpec
       BlackScholesSpec
       Table1
+      Within
       Paths_project
   autogen-modules:
       Paths_project
@@ -72,4 +77,5 @@ test-suite project-test
     , erf
     , hspec
     , project
+    , vector
   default-language: Haskell2010
