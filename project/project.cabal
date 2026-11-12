@@ -28,6 +28,7 @@ library
       BinomialTree
       BlackScholes
       Lib
+      LSM
       Option
   other-modules:
       Paths_project
@@ -39,6 +40,9 @@ library
   build-depends:
       base >=4.7 && <5
     , erf
+    , linear
+    , mwc-random
+    , random
     , vector
   default-language: Haskell2010
 
@@ -54,7 +58,10 @@ executable project-exe
   build-depends:
       base >=4.7 && <5
     , erf
+    , linear
+    , mwc-random
     , project
+    , random
     , vector
   default-language: Haskell2010
 
@@ -76,6 +83,9 @@ test-suite project-test
       base >=4.7 && <5
     , erf
     , hspec
+    , linear
+    , mwc-random
     , project
+    , random
     , vector
   default-language: Haskell2010
