@@ -27,7 +27,6 @@ library
   exposed-modules:
       BinomialTree
       BlackScholes
-      Lib
       LSM
       Option
   other-modules:
