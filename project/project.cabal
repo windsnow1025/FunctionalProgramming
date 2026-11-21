@@ -70,6 +70,7 @@ test-suite project-test
   other-modules:
       BinomialTreeSpec
       BlackScholesSpec
+      LSMSpec
       Table1
       Within
       Paths_project
