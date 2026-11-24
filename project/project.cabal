@@ -29,6 +29,7 @@ library
       BlackScholes
       LSM
       Option
+      ParallelLSM
   other-modules:
       Paths_project
   autogen-modules:
